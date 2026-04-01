@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Environment variables
+.env
+.env.local
+
+# Models
+*.pkl
+models/*.pkl
+
+# Data logs / outputs
+data/logs/*.csv
+data/logs/*.json
+*.csv
+*.log
+
+# Runtime state
+overlyzer_state.json
+fast_goal_signal_scan_results.csv
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Test / cache
+.pytest_cache/
+.coverage
+htmlcov/
