@@ -136,11 +136,9 @@ A separate script analyzes recent logged data:
 Output file:
 fast_goal_signal_scan_results.csv
 
-
 ---
 
 ## Repository Structure
-
 ```text
 live-soccer-stats/
 ├── src/
@@ -165,10 +163,13 @@ live-soccer-stats/
 ├── .gitignore
 ├── requirements.txt
 └── README.md
-Environment Setup
+```
 
-Create a .env file based on .env.example:
+## Environment Setup
 
+Create a `.env` file based on `.env.example`:
+
+```env
 TELEGRAM_BOT_TOKEN=
 TELEGRAM_CHAT_ID=
 OVERLYZER_TOKEN=
@@ -177,45 +178,75 @@ MINUTE_LOG_PATH=data/logs/minute_states_log.csv
 
 GOAL_MODEL_NEXT10_PATH=models/goal_model_next_10m.pkl
 GOALS_REG_MODEL_PATH=models/goals_remaining_regressor.pkl
-Installation
+```
+
+## Installation
+
+```bash
 python -m venv .venv
-Windows
+```
+
+### Windows
+
+```bash
 .venv\Scripts\activate
 pip install -r requirements.txt
-Linux / macOS
+```
+
+### Linux / macOS
+
+```bash
 source .venv/bin/activate
 pip install -r requirements.txt
-Usage
-Run the live bot
+```
+
+## Usage
+
+### Run the live bot
+
+```bash
 python scripts/run_bot.py
-Train regression model
+```
+
+### Train regression model
+
+```bash
 python scripts/train_goals_regression.py
-Run signal scanner
+```
+
+### Run signal scanner
+
+```bash
 python scripts/scan_signals.py
-Data & Model Notes
+```
+
+## Data & Model Notes
 
 This repository does not include:
 
-raw minute logs
-trained model binaries
-runtime state files
+- raw minute logs
+- trained model binaries
+- runtime state files
 
 These are generated locally during execution.
 
-Design Philosophy
+## Design Philosophy
 
 The project focuses on:
 
-real-time feature extraction from live sports data
-combining statistical signals with machine learning
-identifying short-horizon opportunities rather than long-term forecasting
-building a modular pipeline for experimentation and improvement
-Future Improvements
-model calibration and probability reliability
-automated backtesting and ROI tracking
-feature importance analysis
-deployment with Docker or on a VPS
-integration with betting APIs
-License
+- real-time feature extraction from live sports data
+- combining statistical signals with machine learning
+- identifying short-horizon opportunities rather than long-term forecasting
+- building a modular pipeline for experimentation and improvement
+
+## Future Improvements
+
+- model calibration and probability reliability
+- automated backtesting and ROI tracking
+- feature importance analysis
+- deployment with Docker or on a VPS
+- integration with betting APIs
+
+## License
 
 MIT License
