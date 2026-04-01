@@ -1,57 +1,141 @@
+
 # Live Soccer Stats
 
-A live soccer monitoring and modeling project built around Overlyzer live match data, minute-level state logging, and machine learning models for short-horizon goal probability and expected remaining goals.
+A real-time soccer monitoring and machine learning system built on top of Overlyzer live match data. The project focuses on detecting high-probability goal scenarios using minute-level match state features and predictive models.
 
 ---
 
-## ?? Key Features
+## Overview
 
-- Live match monitoring via Overlyzer API  
-- Minute-level feature engineering and logging  
-- Machine learning models for:
-  - Goal in next 10 minutes  
-  - Goal before half-time  
-  - Final over 2.5  
-  - Expected remaining goals  
-- Real-time Telegram alerting  
-- Offline signal scanning and validation  
+This project combines:
 
----
+1. **Live match ingestion** from the Overlyzer API  
+2. **Feature engineering** from minute-level match states  
+3. **Machine learning models** for short-term goal prediction  
+4. **Automated alerting** via Telegram  
 
-## Project Overview
-
-The codebase combines three core workflows:
-
-1. **Live ingestion and alerting** through an Overlyzer polling bot with Telegram notifications  
-2. **Model training** from minute-by-minute match state logs  
-3. **Offline scanning / validation** of promising live states  
-
-The system:
-- polls live match data  
-- logs minute states  
-- computes pressure and momentum features  
-- runs ML models  
-- sends betting-oriented alerts  
+The system is designed to identify high-value in-play betting opportunities based on match dynamics such as pressure, shots, corners, and momentum.
 
 ---
 
-## What this repository contains
+## How the System Works
 
-### ? Included
+### 1. Live Data Ingestion
 
-- Source code  
-- Configuration templates  
-- Dependency definitions  
-- Documentation  
-- Lightweight sample data  
+The bot continuously polls the Overlyzer API:
+https://connect.overlyzer.ws/api/v2/live
 
-### ? Excluded
 
-- API tokens / credentials  
-- Large raw logs  
-- Runtime state files  
-- Trained model binaries  
-- Generated outputs  
+
+For each live match, it retrieves:
+
+- attacks and dangerous attacks  
+- shots on target / off target  
+- corners  
+- possession  
+- match time and score  
+
+---
+
+### 2. Match State Construction
+
+Each poll is transformed into a structured **minute-level state**.
+
+For every match and minute, the system builds features such as:
+
+- `minute`, `half`  
+- `goals_home`, `goals_away`, `goals_total`  
+- `total_pressure` (derived from attack metrics)  
+- `pressure_diff`  
+- `shots_on_target`, `total_shots`  
+- `corners_total`  
+- `possession_ratio`  
+
+These states are appended to a CSV log:
+data/logs/minute_states_log.csv
+
+
+This dataset is the foundation for all modeling.
+
+---
+
+### 3. Feature Engineering & Momentum
+
+The system tracks short-term dynamics such as:
+
+- pressure spikes  
+- shot intensity  
+- corner bursts  
+- pressure vs goals mismatch  
+
+These signals are used both:
+
+- in real-time alert logic  
+- as features for machine learning models  
+
+---
+
+### 4. Machine Learning Models
+
+Two types of models are used:
+
+#### A. Goal Outcome Classification
+
+Predicts probabilities for:
+
+- goal in the next 10 minutes  
+- goal before half-time  
+- final match over 2.5 goals  
+
+Training is performed using historical minute states.
+
+---
+
+#### B. Remaining Goals Regression
+
+Predicts:
+remaining_goals = final_total_goals - current_goals
+
+
+This estimates how many goals are expected until the end of the match.
+
+---
+
+### 5. Real-Time Decision Logic
+
+During live execution, the bot:
+
+1. Maintains a rolling history per match  
+2. Detects high-pressure or high-activity states  
+3. Applies trained models (if enabled)  
+4. Combines statistical signals + model probabilities  
+5. Generates alerts when thresholds are exceeded  
+
+---
+
+### 6. Telegram Alerting
+
+When a strong signal is detected, the bot sends a message to a Telegram channel including:
+
+- match information  
+- current score and minute  
+- pressure and shot metrics  
+- model probabilities (if available)  
+
+---
+
+### 7. Offline Signal Scanner
+
+A separate script analyzes recent logged data:
+
+- reads latest rows from the minute log  
+- filters valid in-play states  
+- scores them using trained models  
+- outputs ranked opportunities  
+
+Output file:
+fast_goal_signal_scan_results.csv
+
 
 ---
 
@@ -59,48 +143,92 @@ The system:
 
 ```text
 live-soccer-stats/
-??? .gitignore
-??? .env.example
-??? LICENSE
-??? README.md
-??? requirements.txt
-??? config/
-?   ??? settings.example.yaml
-??? data/
-?   ??? raw/
-?   ?   ??? .gitkeep
-?   ??? processed/
-?   ?   ??? .gitkeep
-?   ??? models/
-?   ?   ??? .gitkeep
-?   ??? reports/
-?       ??? .gitkeep
-??? docs/
-?   ??? architecture.md
-?   ??? data_dictionary.md
-?   ??? experiments.md
-??? notebooks/
-?   ??? .gitkeep
-??? scripts/
-?   ??? train_goal_outcome.py
-?   ??? train_goals_regression.py
-?   ??? run_live_bot.py
-?   ??? scan_recent_states.py
 ??? src/
 ?   ??? live_soccer/
-?       ??? __init__.py
 ?       ??? bot.py
 ?       ??? config.py
-?       ??? logging_utils.py
 ?       ??? models/
-?       ?   ??? __init__.py
 ?       ?   ??? goal_outcome_trainer.py
 ?       ?   ??? goals_regression_trainer.py
 ?       ??? scanners/
-?       ?   ??? __init__.py
-?       ?   ??? fast_goal_signal_scan.py
-?       ??? utils/
-?           ??? __init__.py
-?           ??? features.py
-??? tests/
-    ??? test_smoke.py
+?           ??? fast_goal_signal_scan.py
+?
+??? scripts/
+?   ??? run_bot.py
+?   ??? train_goal_outcome.py
+?   ??? train_goals_regression.py
+?   ??? scan_signals.py
+?
+??? data/
+?   ??? sample/
+?   ??? logs/
+?
+??? models/
+?
+??? .env.example
+??? .gitignore
+??? requirements.txt
+??? README.md
+
+
+Environment Setup
+
+Create a .env file based on .env.example:
+TELEGRAM_BOT_TOKEN=
+TELEGRAM_CHAT_ID=
+OVERLYZER_TOKEN=
+
+MINUTE_LOG_PATH=data/logs/minute_states_log.csv
+
+GOAL_MODEL_NEXT10_PATH=models/goal_model_next_10m.pkl
+GOALS_REG_MODEL_PATH=models/goals_remaining_regressor.pkl
+
+
+Installation
+python -m venv .venv
+
+Windows
+.venv\Scripts\activate
+pip install -r requirements.txt
+
+Linux / macOS
+source .venv/bin/activate
+pip install -r requirements.txt
+
+Usage
+Run the live bot
+python scripts/run_bot.py
+
+Train regression model
+python scripts/train_goals_regression.py
+
+Run signal scanner
+python scripts/scan_signals.py
+
+
+##Data & Model Notes
+
+This repository does not include:
+raw minute logs
+trained model binaries
+runtime state files
+
+These are generated locally during execution.
+
+##Design Philosophy
+###The project focuses on:
+real-time feature extraction from live sports data
+combining statistical signals with machine learning
+identifying short-horizon opportunities rather than long-term forecasting
+building a modular pipeline for experimentation and improvement
+
+##Future Improvements
+model calibration and probability reliability
+automated backtesting and ROI tracking
+feature importance analysis
+deployment (Docker / VPS)
+integration with betting APIs
+
+##License
+
+MIT License
