@@ -1,0 +1,1 @@
+print("Use this script as an entrypoint for the fast signal scanner.")
