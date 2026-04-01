@@ -143,37 +143,32 @@ fast_goal_signal_scan_results.csv
 
 ```text
 live-soccer-stats/
-??? src/
-?   ??? live_soccer/
-?       ??? bot.py
-?       ??? config.py
-?       ??? models/
-?       ?   ??? goal_outcome_trainer.py
-?       ?   ??? goals_regression_trainer.py
-?       ??? scanners/
-?           ??? fast_goal_signal_scan.py
-?
-??? scripts/
-?   ??? run_bot.py
-?   ??? train_goal_outcome.py
-?   ??? train_goals_regression.py
-?   ??? scan_signals.py
-?
-??? data/
-?   ??? sample/
-?   ??? logs/
-?
-??? models/
-?
-??? .env.example
-??? .gitignore
-??? requirements.txt
-??? README.md
-
-
+├── src/
+│   └── live_soccer/
+│       ├── bot.py
+│       ├── config.py
+│       ├── models/
+│       │   ├── goal_outcome_trainer.py
+│       │   └── goals_regression_trainer.py
+│       └── scanners/
+│           └── fast_goal_signal_scan.py
+├── scripts/
+│   ├── run_bot.py
+│   ├── train_goal_outcome.py
+│   ├── train_goals_regression.py
+│   └── scan_signals.py
+├── data/
+│   ├── sample/
+│   └── logs/
+├── models/
+├── .env.example
+├── .gitignore
+├── requirements.txt
+└── README.md
 Environment Setup
 
 Create a .env file based on .env.example:
+
 TELEGRAM_BOT_TOKEN=
 TELEGRAM_CHAT_ID=
 OVERLYZER_TOKEN=
@@ -182,53 +177,45 @@ MINUTE_LOG_PATH=data/logs/minute_states_log.csv
 
 GOAL_MODEL_NEXT10_PATH=models/goal_model_next_10m.pkl
 GOALS_REG_MODEL_PATH=models/goals_remaining_regressor.pkl
-
-
 Installation
 python -m venv .venv
-
 Windows
 .venv\Scripts\activate
 pip install -r requirements.txt
-
 Linux / macOS
 source .venv/bin/activate
 pip install -r requirements.txt
-
 Usage
 Run the live bot
 python scripts/run_bot.py
-
 Train regression model
 python scripts/train_goals_regression.py
-
 Run signal scanner
 python scripts/scan_signals.py
-
-
-##Data & Model Notes
+Data & Model Notes
 
 This repository does not include:
+
 raw minute logs
 trained model binaries
 runtime state files
 
 These are generated locally during execution.
 
-##Design Philosophy
-###The project focuses on:
+Design Philosophy
+
+The project focuses on:
+
 real-time feature extraction from live sports data
 combining statistical signals with machine learning
 identifying short-horizon opportunities rather than long-term forecasting
 building a modular pipeline for experimentation and improvement
-
-##Future Improvements
+Future Improvements
 model calibration and probability reliability
 automated backtesting and ROI tracking
 feature importance analysis
-deployment (Docker / VPS)
+deployment with Docker or on a VPS
 integration with betting APIs
-
-##License
+License
 
 MIT License
